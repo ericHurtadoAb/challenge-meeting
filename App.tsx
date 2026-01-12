@@ -1,11 +1,12 @@
 import { NavigationContainer } from '@react-navigation/native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from './src/hooks/use-auth';
 import AppNavigator from './src/navigation/app-navigator';
+import { createTodayChallengeIfNotExists } from './src/services/admin.service';
 
 export default function App() {
-  const user = useAuth();
+  const { user } = useAuth();
 
   if (user === undefined) {
     return (
@@ -14,6 +15,11 @@ export default function App() {
       </View>
     );
   }
+
+  useEffect(() => {
+    createTodayChallengeIfNotExists();
+  }, []);
+
 
   return (
     <NavigationContainer>
