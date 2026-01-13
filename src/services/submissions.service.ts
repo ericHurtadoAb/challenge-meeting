@@ -1,9 +1,9 @@
 import {
-    addDoc,
-    collection,
-    getDocs,
-    query,
-    where,
+  addDoc,
+  collection,
+  getDocs,
+  query,
+  where
 } from 'firebase/firestore';
 import { db } from '../../firebase-config';
 import { submission } from '../models/submission';
@@ -11,8 +11,11 @@ import { submission } from '../models/submission';
 export const createSubmission = async (
   submission: Omit<submission, 'id'>
 ) => {
-  await addDoc(collection(db, 'submissions'), submission);
-  return submission as submission;
+  const docRef = await addDoc(collection(db, 'submissions'), submission);
+  return {
+    id: docRef.id,
+    ...submission
+  } as submission;
 };
 
 export const getSubmissionByUserAndChallenge = async (

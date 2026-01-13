@@ -51,7 +51,18 @@ export const submitChallengeCloudinary = async (
             });
         }
 
-        await deleteDoc(doc(db, "submissions", docSnap.id));
+        const commentsQuery = query(
+          collection(db, "comments"),
+          where("submissionId", "==", docSnap.id)
+        );
+
+        const commentsSnapshot = await getDocs(commentsQuery);
+
+        for (const commentDoc of commentsSnapshot.docs) {
+          await deleteDoc(doc(db, "comments", commentDoc.id));
+        }
+
+        await deleteDoc(doc(db, "submissions", docSnap.id));//as
     }
 
     //SUBIR NUEVA SUBMISSION

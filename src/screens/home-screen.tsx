@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import ChallengeCard from '../components/challenge-card';
 import { COLORS, RADIUS, SPACING } from '../styles/theme';
@@ -24,6 +24,7 @@ export default function HomeScreen() {
   const [challenge, setChallenge] = useState<dailyChallenge | null>(null);
   const [submission, setSubmission] = useState<submission | null>(null);
   const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -72,9 +73,13 @@ export default function HomeScreen() {
 
     const userDetails = await getUserById(user.uid);
 
+    setUploading(true);
+
     const newSubmission = await submitChallengeCloudinary(fileUri, type, userDetails, challenge.id);
 
     if (newSubmission) setSubmission(newSubmission);
+
+    setUploading(false);
 };
 
   if (loading || !challenge) {
@@ -84,37 +89,50 @@ export default function HomeScreen() {
   const hasSubmitted = !!submission;
 
   return (
-    <View
-      style={[
-        styles.container,
-        !hasSubmitted && styles.centeredContainer,
-      ]}
+    <KeyboardAvoidingView
+      style={{ flex: 1, backgroundColor: COLORS.background }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <Text style={styles.title}>{challenge.title}</Text>
-
-      {hasSubmitted && submission && (
-        <ChallengeCard
-          {...submission}
-        />
-      )}
-
-      {!hasSubmitted ? (
-        <Pressable
-        style={styles.uploadButton}
-        onPress={handleUpload}
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[
+          styles.content,
+          !hasSubmitted && styles.centeredContainer,//asasas
+        ]}
+        keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.uploadText}>
-          Upload Your Proof
-        </Text>
-      </Pressable>) : (
-        <Text style={styles.challengeSubmited}>challenge submited!</Text>
-      )}
-      
+        <Text style={styles.title}>{challenge.title}</Text>
 
-      <Text style={styles.countdown}>
-        19:55:10 left
-      </Text>
-    </View>
+        {hasSubmitted && submission && (
+          <ChallengeCard
+            {...submission}
+          />
+        )}
+
+        {uploading && (
+          <View style={[styles.cardPlaceholder]}>
+            <Text style={{ color: COLORS.textSecondary }}>Uploading...</Text>
+          </View>
+        )}
+
+        {!hasSubmitted ? (
+          <Pressable
+          style={styles.uploadButton}
+          onPress={handleUpload}
+        >
+          <Text style={styles.uploadText}>
+            Upload Your Proof
+          </Text>
+        </Pressable>) : (
+          <Text style={styles.challengeSubmited}>challenge submitted!</Text>
+        )}
+        
+
+        <Text style={styles.countdown}>
+          19:55:10 left
+        </Text>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -125,9 +143,17 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     padding: SPACING.m,
   },
+  scroll: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+  },
+  content: {
+    padding: SPACING.m,
+  },
 
   centeredContainer: {
-    justifyContent: 'center',
+    justifyContent: "center",
+    minHeight: "100%",
   },
 
   title: {
@@ -177,4 +203,13 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: SPACING.s,
   },
+  cardPlaceholder: {
+  backgroundColor: COLORS.card,
+  margin: SPACING.m,
+  borderRadius: RADIUS.l,
+  padding: SPACING.m,
+  height: 50,
+  justifyContent: "center",
+  alignItems: "center",
+},
 });
