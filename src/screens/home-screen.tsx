@@ -5,16 +5,15 @@ import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text
 import ChallengeCard from '../components/challenge-card';
 import { COLORS, RADIUS, SPACING } from '../styles/theme';
 
-import { getTodayChallenge } from '../services/challenge.service';
-import {
-  getSubmissionByUserAndChallenge,
-} from '../services/submissions.service';
-
-import { useAuth } from '../hooks/use-auth';
+import { useAuth } from "../context/auth-context";
 import { useCameraPermission } from "../hooks/use-camara-permission";
 import { dailyChallenge } from '../models/daily-challenge';
 import { submission } from '../models/submission';
+import { getTodayChallenge } from '../services/challenge.service';
 import { submitChallengeCloudinary } from '../services/cloudinary.service';
+import {
+  getSubmissionByUserAndChallenge,
+} from '../services/submissions.service';
 import { getUserById } from "../services/users.service";
 
 export default function HomeScreen() {
@@ -38,7 +37,7 @@ export default function HomeScreen() {
       if (todayChallenge) {
         const userSubmission =
           await getSubmissionByUserAndChallenge(
-            user.uid,
+            user.id,
             todayChallenge.id
           );
 
@@ -71,7 +70,7 @@ export default function HomeScreen() {
     const fileUri = result.assets[0].uri;
     const type = result.assets[0].type === "video" ? "video" : "image";
 
-    const userDetails = await getUserById(user.uid);
+    const userDetails = await getUserById(user.id);
 
     setUploading(true);
 
@@ -127,7 +126,6 @@ export default function HomeScreen() {
           <Text style={styles.challengeSubmited}>challenge submitted!</Text>
         )}
         
-
         <Text style={styles.countdown}>
           19:55:10 left
         </Text>
@@ -143,10 +141,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     padding: SPACING.m,
   },
+
   scroll: {
     flex: 1,
     backgroundColor: COLORS.background,
   },
+
   content: {
     padding: SPACING.m,
   },
@@ -203,13 +203,14 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     marginTop: SPACING.s,
   },
+
   cardPlaceholder: {
-  backgroundColor: COLORS.card,
-  margin: SPACING.m,
-  borderRadius: RADIUS.l,
-  padding: SPACING.m,
-  height: 50,
-  justifyContent: "center",
-  alignItems: "center",
-},
+    backgroundColor: COLORS.card,
+    margin: SPACING.m,
+    borderRadius: RADIUS.l,
+    padding: SPACING.m,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

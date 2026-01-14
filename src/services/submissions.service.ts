@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   getDocs,
+  orderBy,
   query,
   where
 } from 'firebase/firestore';
@@ -41,13 +42,16 @@ export const getSubmissionsByChallenge = async (
 ) => {
   const q = query(
     collection(db, 'submissions'),
-    where('userId', '!=', userId),
-    where('challengeId', '==', challengeId)
+    where('challengeId', '==', challengeId),
+    orderBy("createdAt", "desc")
   );
 
   const snap = await getDocs(q);
+
   if (snap.empty) return null;
 
-  const docSnaps = snap.docs;
-  return docSnaps.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })) as submission[];
+  const submissions = snap.docs
+    .map((docSnap) => ({ id: docSnap.id, ...docSnap.data() })) as submission[];
+
+  return submissions.filter((sub) => sub.userId !== userId);
 };

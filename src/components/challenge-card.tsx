@@ -1,4 +1,4 @@
-import { Video } from "expo-av";
+import { ResizeMode, Video } from "expo-av";
 import { useState } from 'react';
 import { Image, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { comment } from '../models/comment';
@@ -55,7 +55,16 @@ export default function ChallengeCard(submission: submission) {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.user}>{submission.userName}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.s }}>
+        {submission.userImage ? (
+                  <Image source={{ uri: submission.userImage }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }} />
+                ) : (
+                  <View style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }}>
+                    <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
+                  </View>
+                )}
+        <Text style={styles.user}>{submission.userName}</Text>
+      </View>
 
       {submission.mediaType === "image" ? (
         <Image source={{ uri: submission.mediaUrl }} style={styles.image} />
@@ -65,6 +74,8 @@ export default function ChallengeCard(submission: submission) {
           style={styles.image}
           useNativeControls
           isLooping
+          shouldPlay={true}
+          resizeMode={ResizeMode.COVER}
         />
       )}
 
@@ -89,6 +100,13 @@ export default function ChallengeCard(submission: submission) {
             <View>
               {comments.map((item) => (
                 <View key={item.id} style={styles.comment}>
+                  {item.photoUrl ? (
+                  <Image source={{ uri: item.photoUrl }} style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }} />
+                ) : (
+                  <View style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }}>
+                    <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
+                  </View>
+                )}
                   <Text style={styles.commentUser}>{item.userName}:</Text>
                   <Text style={styles.commentText}>{item.text}</Text>
                 </View>
@@ -156,7 +174,7 @@ const styles = StyleSheet.create({
     color: COLORS.danger,
   },
   commentButton: {
-    backgroundColor: COLORS.textPrimary,
+    backgroundColor: COLORS.card,
     padding: SPACING.m,
     borderRadius: RADIUS.m,
     alignItems: "center",
@@ -172,6 +190,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginBottom: SPACING.m,
     marginTop: SPACING.m,
+    flexWrap: 'wrap',
   },
   commentUser: {
     fontWeight: "600",

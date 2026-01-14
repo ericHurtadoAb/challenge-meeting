@@ -1,6 +1,7 @@
 export interface user {
   id: string;
   displayName: string;
+  email: string;
   photoURL?: string | null;
   createdAt: Date;
 
@@ -9,6 +10,4 @@ export interface user {
   totalFailed: number;
 
   friendsCount: number;
-
-  isAnonymous: boolean;
 }
