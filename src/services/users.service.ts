@@ -30,10 +30,8 @@ export const updateUserProfile = async (
   try {
     const userRef = doc(db, "users", userId);
 
-    // Actualizamos los campos en Firestore
     await updateDoc(userRef, data);
 
-    // Obtenemos el usuario actualizado
     const updatedSnap = await getDoc(userRef);
     if (!updatedSnap.exists()) throw new Error("User not found");
 

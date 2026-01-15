@@ -26,19 +26,9 @@ export default function SearchFriendsScreen() {
   
     useEffect(() => {
       if (!user) return;
-  
-      const loadFriends = async () => {
-        setLoading(true);
-        try {
-          const friends = await getFriends(user.id);
-          setAllFriends(friends.filter((f): f is user => f !== null));
-        } catch (err) {
-          console.error('Error loading friends:', err);
-        }
-        setLoading(false);
-      };
-  
-      loadFriends();
+      setLoading(true);
+      loadData();
+      setLoading(false);
     }, [user]);
   
     useEffect(() => {

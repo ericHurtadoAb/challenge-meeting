@@ -26,19 +26,9 @@ export default function FriendsRequestScreen() {
   
     useEffect(() => {
       if (!user) return;
-  
-      const loadFriends = async () => {
-        setLoading(true);
-        try {
-          const friends = await getPendingRequests(user.id);
-          setAllRequest(friends.filter((f) => f !== null) as user[]);
-        } catch (err) {
-          console.error('Error loading requests:', err);
-        }
-        setLoading(false);
-      };
-  
-      loadFriends();
+      setLoading(true);
+      loadData();
+      setLoading(false);
     }, [user]);
   
     useEffect(() => {

@@ -3,9 +3,7 @@ import { addDoc, collection, deleteDoc, doc, getDocs, query, updateDoc, where } 
 import { friendship } from "../models/friendship";
 import { getUserById } from "./users.service";
 
-// Crear solicitud de amistad
 export const sendFriendRequest = async (fromId: string, toId: string) => {
-  // Comprobar si ya existe amistad o solicitud
   const q = query(
     collection(db, "friendships"),
     where("user1", "in", [fromId, toId]),
@@ -25,19 +23,16 @@ export const sendFriendRequest = async (fromId: string, toId: string) => {
   return ref.id;
 };
 
-// Aceptar solicitud de amistad
 export const acceptFriendRequest = async (friendshipId: string) => {
   const ref = doc(db, "friendships", friendshipId);
   await updateDoc(ref, { status: "accepted" });
 };
 
-// Rechazar solicitud
 export const rejectFriendRequest = async (friendshipId: string) => {
   const ref = doc(db, "friendships", friendshipId);
   await deleteDoc(ref);
 };
 
-// Obtener todos los amigos de un usuario
 export const getFriends = async (userId: string) => {
   const q = query(
     collection(db, "friendships"),
@@ -57,7 +52,6 @@ export const getFriends = async (userId: string) => {
   return friends;
 };
 
-// Obtener solicitudes entrantes pendientes
 export const getPendingRequests = async (userId: string) => {
   const q = query(
     collection(db, "friendships"),
@@ -76,7 +70,6 @@ export const getPendingRequests = async (userId: string) => {
   return users;
 };
 
-// Obtener el estado de amistad con otro usuario
 export const getFriendshipStatus = async (currentUserId: string, otherUserId: string) => {
   const q = query(
     collection(db, "friendships"),

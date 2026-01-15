@@ -25,8 +25,6 @@ export default function UserProfileScreen({ route }: Props) {
       if (!currentUser) return;
       const res = await getFriendshipStatus(currentUser.id, userId);
       setFriendStatus(res);
-      // Fetch other user details
-      // Suponemos getUserById
       const userData = await getUserById(userId);
       setOtherUser(userData);
     };

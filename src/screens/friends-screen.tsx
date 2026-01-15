@@ -55,36 +55,9 @@ export default function FriendsScreen() {
 
   useEffect(() => {
     if (!user) return;
-
-    const loadFriendsAndSubmissions = async () => {
-      setLoading(true);
-
-      try {
-        // Traemos lista de amigos
-        const friends = await getFriends(user.id);
-        setFriendsIds(friends.filter(f => f !== null).map((f) => f.id));
-
-        // Traemos challenge actual
-        const todayChallenge = await getTodayChallenge();
-        if (!todayChallenge) {
-          setLoading(false);
-          return;
-        }
-        const submissionsToday = await getSubmissionsByChallenge(user.id, todayChallenge.id);
-
-        if (!submissionsToday) {
-          setLoading(false);
-          return;
-        }
-        setTemporalSubmissions(submissionsToday);
-      } catch (err) {
-        console.error('Error loading submissions:', err);
-      }
-
-      setLoading(false);
-    };
-
-    loadFriendsAndSubmissions();
+    setLoading(true);
+    loadData();
+    setLoading(false);
   }, [user]);
 
   useEffect(() => {
