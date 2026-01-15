@@ -31,7 +31,6 @@ export const register = async (
     createdAt: new Date(),
   };
 
-  // 🔥 AQUÍ se guarda el nombre CORRECTO
   await createUser(user);
 };
 
