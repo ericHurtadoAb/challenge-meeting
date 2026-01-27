@@ -36,7 +36,8 @@ export const rejectFriendRequest = async (friendshipId: string) => {
 export const getFriends = async (userId: string) => {
   const q = query(
     collection(db, "friendships"),
-    where("status", "==", "accepted")
+    where("status", "==", "accepted"),
+    where("user1", "==", userId) || where("user2", "==", userId)
   );
   const snap = await getDocs(q);
 
