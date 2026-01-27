@@ -74,12 +74,12 @@ export default function HomeScreen() {
 
     setUploading(true);
 
-    const newSubmission = await submitChallengeCloudinary(fileUri, type, userDetails, challenge.id);
+    const newSubmission = await submitChallengeCloudinary(fileUri, type, userDetails, challenge.id, challenge);
 
     if (newSubmission) setSubmission(newSubmission);
 
     setUploading(false);
-};
+  };
 
   if (loading || !challenge) {
     return <View style={styles.container} />;
@@ -116,16 +116,24 @@ export default function HomeScreen() {
 
         {!hasSubmitted ? (
           <Pressable
-          style={styles.uploadButton}
-          onPress={handleUpload}
-        >
-          <Text style={styles.uploadText}>
-            Upload Your Proof
-          </Text>
-        </Pressable>) : (
-          <Text style={styles.challengeSubmited}>challenge submitted!</Text>
+            style={styles.uploadButton}
+            onPress={handleUpload}
+          >
+            <Text style={styles.uploadText}>
+              Upload Your Proof
+            </Text>
+          </Pressable>) : (
+          <>
+            <Text style={styles.challengeSubmited}>challenge submitted!</Text>
+            <Pressable
+              style={[styles.uploadButton, { backgroundColor: '#666', marginTop: 10 }]}
+              onPress={() => setSubmission(null)}
+            >
+              <Text style={styles.uploadText}>🔄 Volver a subir (Test)</Text>
+            </Pressable>
+          </>
         )}
-        
+
         <Text style={styles.countdown}>
           19:55:10 left
         </Text>

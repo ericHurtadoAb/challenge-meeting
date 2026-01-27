@@ -11,7 +11,8 @@ export default function ChallengeCard(submission: submission) {
   const [comments, setComments] = useState<comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
-  
+  const [showVerificationDetails, setShowVerificationDetails] = useState(false);
+
   const loadComments = async () => {
     if (showComments) {
       setShowComments(false);
@@ -57,12 +58,12 @@ export default function ChallengeCard(submission: submission) {
     <View style={styles.card}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.s }}>
         {submission.userImage ? (
-                  <Image source={{ uri: submission.userImage }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }} />
-                ) : (
-                  <View style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }}>
-                    <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
-                  </View>
-                )}
+          <Image source={{ uri: submission.userImage }} style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }} />
+        ) : (
+          <View style={{ width: 40, height: 40, borderRadius: 20, marginRight: SPACING.s }}>
+            <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
+          </View>
+        )}
         <Text style={styles.user}>{submission.userName}</Text>
       </View>
 
@@ -90,6 +91,37 @@ export default function ChallengeCard(submission: submission) {
           <Text>✖️​​ {submission.votesDown}</Text>
         </View>
       </View>
+
+      {/* Badge de verificación IA */}
+      {submission.result === 'approved' && (
+        <View style={[styles.verificationBadge, { backgroundColor: '#22c55e33' }]}>
+          <Text style={{ color: '#22c55e', fontWeight: '600' }}>
+            ✅ Verificado por IA
+          </Text>
+        </View>
+      )}
+      {submission.result === 'pending' && (
+        <View style={[styles.verificationBadge, { backgroundColor: '#f59e0b33' }]}>
+          <Text style={{ color: '#f59e0b', fontWeight: '600' }}>
+            ⏳ Pendiente de verificación
+          </Text>
+        </View>
+      )}
+      {submission.result === 'failed' && (
+        <Pressable
+          style={[styles.verificationBadge, { backgroundColor: '#ef444433' }]}
+          onPress={() => setShowVerificationDetails(!showVerificationDetails)}
+        >
+          <Text style={{ color: '#ef4444', fontWeight: '600' }}>
+            ❌ No verificado {showVerificationDetails ? '▲' : '▼'}
+          </Text>
+          {showVerificationDetails && submission.aiVerification?.reason && (
+            <Text style={{ color: '#9ca3af', fontSize: 12, marginTop: 4 }}>
+              {submission.aiVerification.reason}
+            </Text>
+          )}
+        </Pressable>
+      )}
       {showComments && (
         <View style={styles.commentsContainer}>
           {loadingComments ? (
@@ -101,12 +133,12 @@ export default function ChallengeCard(submission: submission) {
               {comments.map((item) => (
                 <View key={item.id} style={styles.comment}>
                   {item.photoUrl ? (
-                  <Image source={{ uri: item.photoUrl }} style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }} />
-                ) : (
-                  <View style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }}>
-                    <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
-                  </View>
-                )}
+                    <Image source={{ uri: item.photoUrl }} style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }} />
+                  ) : (
+                    <View style={{ width: 20, height: 20, borderRadius: 20, marginRight: SPACING.s }}>
+                      <Text style={{ color: COLORS.textSecondary }}>Add Photo</Text>
+                    </View>
+                  )}
                   <Text style={styles.commentUser}>{item.userName}:</Text>
                   <Text style={styles.commentText}>{item.text}</Text>
                 </View>
@@ -201,34 +233,41 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   commentInputBox: {
-  flexDirection: "row",
-  alignItems: "center",
-  marginTop: SPACING.m,
-  backgroundColor: "#1a1a1a",
-  borderRadius: RADIUS.m,
-  borderColor: '#303030',
-  borderWidth: 1,
-  paddingHorizontal: SPACING.s,
-},
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: SPACING.m,
+    backgroundColor: "#1a1a1a",
+    borderRadius: RADIUS.m,
+    borderColor: '#303030',
+    borderWidth: 1,
+    paddingHorizontal: SPACING.s,
+  },
 
-commentInput: {
-  flex: 1,
-  color: COLORS.textPrimary,
-  paddingVertical: SPACING.s,
-},
+  commentInput: {
+    flex: 1,
+    color: COLORS.textPrimary,
+    paddingVertical: SPACING.s,
+  },
 
-sendButton: {
-  paddingHorizontal: SPACING.m,
-  paddingVertical: SPACING.s,
-},
+  sendButton: {
+    paddingHorizontal: SPACING.m,
+    paddingVertical: SPACING.s,
+  },
 
-sendText: {
-  color: COLORS.accent,
-  fontWeight: "600",
-},
+  sendText: {
+    color: COLORS.accent,
+    fontWeight: "600",
+  },
 
-emptyText: {
-  color: COLORS.textSecondary,
-},
+  emptyText: {
+    color: COLORS.textSecondary,
+  },
+
+  verificationBadge: {
+    marginTop: SPACING.m,
+    padding: SPACING.s,
+    borderRadius: RADIUS.m,
+    alignItems: 'center',
+  },
 });
 
