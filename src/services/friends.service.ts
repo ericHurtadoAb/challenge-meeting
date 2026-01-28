@@ -34,22 +34,31 @@ export const rejectFriendRequest = async (friendshipId: string) => {
 };
 
 export const getFriends = async (userId: string) => {
-  const q = query(
+  const q1 = query(
     collection(db, "friendships"),
     where("status", "==", "accepted"),
-    where("user1", "==", userId) || where("user2", "==", userId)
+    where("user1", "==", userId)
   );
-  const snap = await getDocs(q);
 
-  const friendIds: string[] = snap.docs
-    .map((docSnap) => {
-      const data = docSnap.data() as friendship;
-      return data.user1 === userId ? data.user2 : data.user1;
-    })
-    .filter((id) => id !== userId);
+  const q2 = query(
+    collection(db, "friendships"),
+    where("status", "==", "accepted"),
+    where("user2", "==", userId)
+  );
 
-  const friends = await Promise.all(friendIds.map((id) => getUserById(id)));
+  const [s1, s2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+  const docs = [...s1.docs, ...s2.docs];
 
+  const friendIds = Array.from(
+    new Set(
+      docs.map((docSnap) => {
+        const data = docSnap.data() as friendship;
+        return data.user1 === userId ? data.user2 : data.user1;
+      })
+    )
+  );
+
+  const friends = await Promise.all(friendIds.map(id => getUserById(id)));
   return friends;
 };
 

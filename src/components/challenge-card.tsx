@@ -1,6 +1,7 @@
 import { ResizeMode, Video } from "expo-av";
 import { useState } from 'react';
 import { Image, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useAuth } from "../context/auth-context";
 import { comment } from '../models/comment';
 import { submission } from '../models/submission';
 import { createComment, getCommentsBySubmission } from '../services/comments.service';
@@ -11,6 +12,7 @@ export default function ChallengeCard(submission: submission) {
   const [comments, setComments] = useState<comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
+  const { user } = useAuth();
   
   const loadComments = async () => {
     if (showComments) {
@@ -37,11 +39,12 @@ export default function ChallengeCard(submission: submission) {
     if (!newComment.trim()) return;
 
     try {
+      if (!user) return;
       const created = await createComment(
         submission.id,
-        submission.userId,
-        submission.userName,
-        submission.userImage,
+        user.id,
+        user.displayName,
+        user.photoURL,
         newComment.trim()
       );
 
@@ -156,14 +159,14 @@ const styles = StyleSheet.create({
   likeButton: {
     backgroundColor: COLORS.accent,
     padding: SPACING.m,
-    borderRadius: RADIUS.m,
+    borderRadius: 100,
     alignItems: 'center',
     marginTop: SPACING.m,
   },
   dislikeButton: {
     backgroundColor: COLORS.danger,
     padding: SPACING.m,
-    borderRadius: RADIUS.m,
+    borderRadius: 100,
     alignItems: 'center',
     marginTop: SPACING.m,
   },
