@@ -35,7 +35,6 @@ export default function FriendsScreen() {
     if (!user) return;
 
     const friends = await getFriends(user.id);
-    console.log(friends);
     setFriendsIds(friends.filter(f => f !== null).map((f) => f.id));
     
     const todayChallenge = await getTodayChallenge();
