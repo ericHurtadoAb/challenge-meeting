@@ -1,5 +1,5 @@
 import { db } from "@/firebase-config";
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
+import { collection, doc, getCountFromServer, getDoc, getDocs, query, setDoc, updateDoc, where } from "firebase/firestore";
 import { user } from "../models/user";
 
 export const getUserById = async (id: string) => {
@@ -40,4 +40,26 @@ export const updateUserProfile = async (
     console.error("Error updating user profile:", err);
     throw err;
   }
+};
+
+export const calculateCompleteSubmissions = async (userId: string): Promise<number> => {
+  const submissionsRef = collection(db, "submissions");
+  const q = query(
+    submissionsRef,
+    where("userId", "==", userId),
+    where("result", "==", "approved")
+  );
+  const snap = await getCountFromServer(q);
+  return snap.data().count;
+};
+
+export const calculateFailSubmissions = async (userId: string): Promise<number> => {
+  const submissionsRef = collection(db, "submissions");
+  const q = query(
+    submissionsRef,
+    where("userId", "==", userId),
+    where("result", "==", "failed")
+  );
+  const snap = await getCountFromServer(q);
+  return snap.data().count;
 };

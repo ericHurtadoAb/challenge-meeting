@@ -1,12 +1,12 @@
 import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import * as ImagePicker from "expo-image-picker";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useAuth } from "../context/auth-context";
 import { RootStackParamList } from "../navigation/app-navigator";
 import { logout } from "../services/auth.service";
-import { updateUserProfile } from "../services/users.service";
+import { calculateCompleteSubmissions, calculateFailSubmissions, updateUserProfile } from "../services/users.service";
 import { COLORS, RADIUS, SPACING } from "../styles/theme";
 
 export default function ProfileScreen() {
@@ -14,8 +14,15 @@ export default function ProfileScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [updatingPhoto, setUpdatingPhoto] = useState(false);
+  const [completed, setCompleted] = useState(0);
+  const [failed, setFailed] = useState(0);
 
   if (!user) return null;
+
+  useEffect(() => {
+      calculateComplete().then(setCompleted);
+      calculateFail().then(setFailed);
+    }, [user]);
 
   const handleChangePhoto = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -37,6 +44,14 @@ export default function ProfileScreen() {
     } finally {
       setUpdatingPhoto(false);
     }
+  };
+
+  const calculateComplete = () => {
+    return calculateCompleteSubmissions(user.id);
+  };
+
+  const calculateFail = () => {
+    return calculateFailSubmissions(user.id);
   };
 
   const goToFriends = () => {
@@ -78,11 +93,11 @@ export default function ProfileScreen() {
           <Text style={styles.statLabel}>Streak</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{user.totalCompleted}</Text>
+          <Text style={styles.statNumber}>{completed}</Text>
           <Text style={styles.statLabel}>Completed</Text>
         </View>
         <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{user.totalFailed}</Text>
+          <Text style={styles.statNumber}>{failed}</Text>
           <Text style={styles.statLabel}>Failed</Text>
         </View>
       </View>
