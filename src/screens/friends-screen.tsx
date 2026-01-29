@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -17,6 +17,7 @@ import {
   getSubmissionsByChallenge
 } from '../services/submissions.service';
 //import { getFriendsByUserId } from '../services/users.service';
+import { useFocusEffect } from '@react-navigation/native';
 import { getFriends } from '../services/friends.service';
 import { COLORS, RADIUS, SPACING } from '../styles/theme';
 
@@ -30,6 +31,7 @@ export default function FriendsScreen() {
   const [search, setSearch] = useState('');
   const [friendsIds, setFriendsIds] = useState<string[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [activeVideoId, setActiveVideoId] = useState<string | null>(null);
 
   const loadData = async () => {
     if (!user) return;
@@ -52,6 +54,18 @@ export default function FriendsScreen() {
 
     setTemporalSubmissions(submissionsToday);
   };
+
+  const viewabilityConfig = {
+    itemVisiblePercentThreshold: 70,
+  };
+
+const onViewableItemsChanged = useRef(
+  ({ viewableItems }: { viewableItems: any[] }) => {
+    if (viewableItems.length > 0) {
+      setActiveVideoId(viewableItems[0].item.id);
+    }
+  }
+).current;
 
   useEffect(() => {
     if (!user) return;
@@ -76,9 +90,21 @@ export default function FriendsScreen() {
     setSubmissions(filtered);
   }, [temporalSubmissions, friendsIds, showOnlyFriends, search]);
 
+  useFocusEffect(
+    useCallback(() => {
+      if (submissions.length > 0) {
+        setActiveVideoId(submissions[0].id);
+      }
+
+      return () => {
+        setActiveVideoId(null);
+      };
+    }, [submissions])
+  );
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadData(); // vuelve a cargar desde Firestore
+    await loadData();
     setRefreshing(false);
   };
 
@@ -110,7 +136,7 @@ export default function FriendsScreen() {
       <FlatList
         data={submissions}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ChallengeCard {...item} />}
+        renderItem={({ item }) => <ChallengeCard submission={item} isActive={activeVideoId === item.id} />}
         contentContainerStyle={{ paddingBottom: SPACING.l }}
         ListEmptyComponent={() =>
           !loading ? (
@@ -119,6 +145,10 @@ export default function FriendsScreen() {
         }
         refreshing={refreshing}
         onRefresh={onRefresh}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={viewabilityConfig}
+        removeClippedSubviews
+        windowSize={5}
       />
       </KeyboardAvoidingView>
     </View>

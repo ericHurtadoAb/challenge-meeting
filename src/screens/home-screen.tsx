@@ -104,7 +104,8 @@ export default function HomeScreen() {
 
         {hasSubmitted && submission && (
           <ChallengeCard
-            {...submission}
+            submission={submission}
+            isActive={true}
           />
         )}
 

@@ -1,5 +1,5 @@
 import { ResizeMode, Video } from "expo-av";
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Image, Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useAuth } from "../context/auth-context";
 import { comment } from '../models/comment';
@@ -7,12 +7,18 @@ import { submission } from '../models/submission';
 import { createComment, getCommentsBySubmission } from '../services/comments.service';
 import { COLORS, RADIUS, SPACING } from '../styles/theme';
 
-export default function ChallengeCard(submission: submission) {
+type Props = {
+  submission: submission;
+  isActive: boolean;
+};
+
+export default function ChallengeCard({ submission, isActive }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState<comment[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [newComment, setNewComment] = useState("");
   const { user } = useAuth();
+  const videoRef = useRef<Video>(null);
   
   const loadComments = async () => {
     if (showComments) {
@@ -56,6 +62,16 @@ export default function ChallengeCard(submission: submission) {
     }
   };
 
+  useEffect(() => {
+    if (!videoRef.current ||submission.mediaType !== "video") return;
+
+    if (isActive) {
+      videoRef.current.playAsync();
+    } else {
+      videoRef.current.pauseAsync();
+    }
+  }, [isActive]);
+
   return (
     <View style={styles.card}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: SPACING.s }}>
@@ -73,12 +89,14 @@ export default function ChallengeCard(submission: submission) {
         <Image source={{ uri: submission.mediaUrl }} style={styles.image} />
       ) : (
         <Video
+          ref={videoRef}
           source={{ uri: submission.mediaUrl }}
           style={styles.image}
           useNativeControls
           isLooping
           shouldPlay={true}
           resizeMode={ResizeMode.COVER}
+          isMuted={true}
         />
       )}
 
