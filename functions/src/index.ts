@@ -1,4 +1,3 @@
-import { createHash } from "crypto";
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/scheduler";
 
@@ -105,28 +104,6 @@ export const dailyDeactivateChallenge = onSchedule({schedule: "0 6 * * *",
         if (ops > 0) {
         await batch.commit();
         }
-
-        //ELIMINA MEDIA DE SUBMISSIONS
-        console.log("Eliminando media de submissions...");
-        for (const docSnap of snapshotSubmissions.docs) {
-        const data = docSnap.data();
-
-        const timestamp = Math.floor(Date.now() / 1000);
-        const toSign = `public_id=${data.public_id}&timestamp=${timestamp}${API_SECRET}`;
-        const signature = createHash("sha1").update(toSign).digest("hex");
-        const delete_url = CLOUDINARY_REMOVE_URL + data.mediaType + "/destroy";
-
-        if (data.public_id) {
-            const resu = await fetch(delete_url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                },
-                body: `public_id=${data.public_id}&timestamp=${timestamp}&api_key=${API_KEY}&signature=${signature}`,
-            });
-            console.log(`Media eliminada para submission ${docSnap.id}:`, await resu.json());
-        }
-    }
 
         //ACTUALIZA RETO
         console.log("Desactivando reto del día...");
